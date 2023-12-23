@@ -49,7 +49,7 @@
       name: bear
       state: present
       
-  - name: get user's home path.
+  - name: Get user's home path.
     ansible.builtin.user:
       name: "{{ ansible_user }}"
       state: present
