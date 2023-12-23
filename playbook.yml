@@ -65,4 +65,4 @@
     replace:
       path: "{{ user_info.home }}/.emacs"
       replace: "{{ venv }}"
-      regexp: "\/home\/tabauga\/\\.emacs\\.venv"
+      regexp: "\/home\/taba1uga\/\\.emacs\\.venv"
