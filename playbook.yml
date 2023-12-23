@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    - venv: /usr/bin/.emacs.venv
+      
+  tasks:
+  - name: Ensure EMACS is installed.
+    package:
+      name: emacs
+      state: present
+
+  - name: Ensure virtualenv is installed.
+    package:
+      name: virtualenv
+      state: present
+
+  - name: Ensure LSP server is installed.
+    pip:
+      name: python-lsp-server[all]
+      virtualenv: "{{ venv }}"
+      
+  - name: Ensure LSP Python plugins are installed.
+    pip:
+      name:
+        - python-lsp-black
+        - python-lsp-ruff
+        - pylsp-mypy
+        - python-lsp-isort
+        - black
+        - ruff
+        - mypy
+        - isort
+        - flake8
+      virtualenv: "{{ venv }}"
+
+  # Required for C lsp
+  - name: Ensure Clang 15 is installed.
+    package:
+      name: clangd-15
+      state: present
+
+  # Required for C project command generation
+  # example:
+  #  https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/#project-setup
+  - name: Ensure Bear is installed.
+    package:
+      name: bear
+      state: present
+      
+  - name: get user's home path.
+    ansible.builtin.user:
+      name: "{{ ansible_user }}"
+      state: present
+    register: user_info
+    check_mode: true  # Important, otherwise user will be created
+      
+  - name: Copy EMACS configuration.
+    copy:
+      src: .emacs
+      dest: "{{ user_info.home }}/.emacs"
+
+  - name: Update EMACS configuration with virtualenv path.
+    replace:
+      path: "{{ user_info.home }}/.emacs"
+      replace: "{{ venv }}"
+      regexp: "\/home\/tabauga\/\\.emacs\\.venv"
